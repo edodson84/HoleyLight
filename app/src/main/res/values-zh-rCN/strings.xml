@@ -17,7 +17,7 @@
     <string name="aod_helper_known_issues_samsung_unholey_clock">&lt;b>Unholey Light: 时钟&lt;/b> 选项应调整为 &lt;b>关闭&lt;/b></string>
     <string name="aod_helper_permissions">&lt;b>AOD Helper&lt;/b> 需要其它权限. 使用它的所有选项已被禁用, 并在授权后需重新手动启用. 您是否需要更新说明?&lt;br>&lt;br>若您的设备已 Root, 选择 &lt;b>Root&lt;/b> 选项则可解决问题. 若还未正常工作会再次显示此弹窗.</string>
     <string name="aod_helper_update">&lt;b>AOD Helper&lt;/b> 需要更新. 使用它的所有选项已被禁用, 并在授权后需重新手动启用. 您是否需要更新说明?</string>
-    <string name="app_details">"版权所有 © 2019-2021 – Chainfire
+    <string name="app_details">"版权所有 © 2019-2022 – Chainfire
 推特: @ChainfireXDA
 源码: github.com/Chainfire/HoleyLight
 点击访问 XDA 主题"</string>
