@@ -20,6 +20,7 @@ package eu.chainfire.holeylight.service.area;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import eu.chainfire.holeylight.misc.Manufacturer;
@@ -27,7 +28,11 @@ import eu.chainfire.holeylight.misc.Manufacturer;
 public abstract class AreaFinder {
     public static AreaFinder factory() {
         if (Manufacturer.isSamsung()) {
-            return new AreaFinderSamsung();
+            if (Build.VERSION.SDK_INT >= 33) {
+                return new AreaFinderSamsung13();
+            } else {
+                return new AreaFinderSamsung();
+            }
         } else if (Manufacturer.isGoogle()) {
             return new AreaFinderGoogle();
         } else {

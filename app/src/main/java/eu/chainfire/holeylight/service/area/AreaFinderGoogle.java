@@ -20,6 +20,7 @@ package eu.chainfire.holeylight.service.area;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
@@ -28,12 +29,16 @@ import eu.chainfire.holeylight.misc.Settings;
 import eu.chainfire.holeylight.misc.Slog;
 
 public class AreaFinderGoogle extends AreaFinder {
+    // we switched to requesting unimportant nodes for Android 13, so filter them out on older
+    private static boolean a13 = Build.VERSION.SDK_INT >= 33;
+
     private Rect clockArea = null;
 
     private void inspectNode(AccessibilityNodeInfo node, Rect outerBounds, int level) {
         if (
                 (node == null) ||
                 (node.getClassName() == null) ||
+                (!a13 && !node.isImportantForAccessibility()) ||
                 (!Settings.DEBUG && (
                         (!node.getClassName().equals("android.widget.FrameLayout")) &&
                         (!node.getClassName().equals("com.android.internal.widget.ViewPager"))

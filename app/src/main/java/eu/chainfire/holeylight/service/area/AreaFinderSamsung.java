@@ -38,6 +38,9 @@ import static java.lang.Math.min;
  */
 
 public class AreaFinderSamsung extends AreaFinder {
+    // We switched to requesting unimportant nodes for Android 13, so filter them out on older
+    private static boolean a13 = Build.VERSION.SDK_INT >= 33;
+
     private String previousNodeClass = null;
     private boolean seenXViewPager = false;
     private boolean haveSeenContainer = false; // if seen, accept no substitute
@@ -107,6 +110,7 @@ public class AreaFinderSamsung extends AreaFinder {
         if (
                 (node == null) ||
                 (node.getClassName() == null) ||
+                (!a13 && !node.isImportantForAccessibility()) ||
                 (!Settings.DEBUG && (
                         (!node.getClassName().equals("android.widget.FrameLayout")) &&
                         (!node.getClassName().equals("com.android.internal.widget.ViewPager")) &&
