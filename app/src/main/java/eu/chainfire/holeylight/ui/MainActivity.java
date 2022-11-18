@@ -41,7 +41,9 @@ import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchasesResponseListener;
 import com.android.billingclient.api.PurchasesUpdatedListener;
+import com.android.billingclient.api.QueryPurchasesParams;
 import com.android.billingclient.api.SkuDetails;
 import com.android.billingclient.api.SkuDetailsParams;
 
@@ -672,7 +674,9 @@ public class MainActivity extends BaseActivity implements Settings.OnSettingsCha
         if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
             if (purchases != null) {
                 for (Purchase purchase : purchases) {
-                    Slog.d("IAP", "purchaseUpdate: %s", purchase.getSku());
+                    for (String product : purchase.getProducts()) {
+                        Slog.d("IAP", "purchaseUpdate: %s", product);
+                    }
                     handlePurchase(purchase);
                 }
             }
@@ -711,17 +715,22 @@ public class MainActivity extends BaseActivity implements Settings.OnSettingsCha
                                 }
                             }
                         });
-                        Purchase.PurchasesResult purchasesResult = billingClient.queryPurchases(BillingClient.SkuType.INAPP);
-                        if (purchasesResult.getBillingResult() != null && purchasesResult.getBillingResult().getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                            List<Purchase> purchases = purchasesResult.getPurchasesList();
-                            if (purchases != null) {
-                                for (Purchase purchase : purchases) {
-                                    Slog.d("IAP", "queryPurchases: %s", purchase.getSku());
-                                    handlePurchase(purchase);
-                                }
-                            }
-                        }
                         settings.incUpdateCounter();
+
+                        billingClient.queryPurchasesAsync(QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP).build(), new PurchasesResponseListener() {
+                            @Override
+                            public void onQueryPurchasesResponse(@NonNull BillingResult billingResult, @NonNull List<Purchase> purchases) {
+                                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                                    for (Purchase purchase : purchases) {
+                                        for (String product : purchase.getProducts()) {
+                                            Slog.d("IAP", "queryPurchases: %s", product);
+                                        }
+                                        handlePurchase(purchase);
+                                    }
+                                }
+                                settings.incUpdateCounter();
+                            }
+                        });
                     }
                 }
                 @Override
@@ -743,12 +752,21 @@ public class MainActivity extends BaseActivity implements Settings.OnSettingsCha
                         AcknowledgePurchaseParams.newBuilder()
                             .setPurchaseToken(purchase.getPurchaseToken())
                             .build();
-                    Slog.d("IAP", "acknowledging: %s", purchase.getSku());
-                    final String sku = purchase.getSku();
+                    final List<String> products = purchase.getProducts();
+                    for (String product : products) {
+                        Slog.d("IAP", "acknowledging: %s", product);
+                    }
                     billingClient.acknowledgePurchase(acknowledgePurchaseParams, billingResult -> {
-                        Slog.d("IAP", "acknowledged: %s", sku);
-                        settings.setPurchased(purchase.getSku());
+                        for (String product : products) {
+                            Slog.d("IAP", "acknowledged: %s", product);
+                            settings.setPurchased(product);
+                        }
                     });
+                } else {
+                    for (String product : purchase.getProducts()) {
+                        Slog.d("IAP", "already purchased: %s", product);
+                        settings.setPurchased(product);
+                    }
                 }
             }
         } catch (Exception e) {

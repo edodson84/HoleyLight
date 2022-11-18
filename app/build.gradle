@@ -6,8 +6,8 @@ android {
         applicationId "eu.chainfire.holeylight"
         minSdkVersion 28
         targetSdkVersion 30
-        versionCode 100
-        versionName "1.00"
+        versionCode 101
+        versionName "1.01"
     }
     buildTypes {
         release {
@@ -35,6 +35,11 @@ android {
             }
         }
     }
+    lintOptions {
+        // Upgrading to Google Play Billing 5.1.0 broke building Signed APKs
+        // Be sure to run Verification -> lintVitalRelease manually before releasing
+        checkReleaseBuilds false
+    }
 }
 
 dependencies {
@@ -43,25 +48,27 @@ dependencies {
     implementation 'androidx.preference:preference:1.1.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.0-alpha2'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'com.android.billingclient:billing:3.0.2'
+    implementation 'com.android.billingclient:billing:5.1.0'
     implementation 'com.airbnb.android:lottie:3.0.0'
     implementation 'com.github.duanhong169:colorpicker:1.1.6'
 }
 
-task buildTranslationArray << {
-    def foundLocales = new StringBuilder()
-    foundLocales.append("new String[]{")
+task buildTranslationArray {
+    doLast {
+        def foundLocales = new StringBuilder()
+        foundLocales.append("new String[]{")
 
-    fileTree("src/main/res").visit { FileVisitDetails details ->
-        if(details.file.path.endsWith("strings.xml")){
-            def languageCode = details.file.parent.tokenize('/').last().tokenize('\\').last().replaceAll('values-','').replaceAll('-r','-')
-            languageCode = (languageCode == "values") ? "en" : languageCode;
-            foundLocales.append("\"").append(languageCode).append("\"").append(",")
+        fileTree("src/main/res").visit { FileVisitDetails details ->
+            if(details.file.path.endsWith("strings.xml")){
+                def languageCode = details.file.parent.tokenize('/').last().tokenize('\\').last().replaceAll('values-','').replaceAll('-r','-')
+                languageCode = (languageCode == "values") ? "en" : languageCode;
+                foundLocales.append("\"").append(languageCode).append("\"").append(",")
+            }
         }
-    }
 
-    foundLocales.append("}")
-    def foundLocalesString = foundLocales.toString().replaceAll(',}','}')
-    android.defaultConfig.buildConfigField "String[]", "TRANSLATION_ARRAY", foundLocalesString
+        foundLocales.append("}")
+        def foundLocalesString = foundLocales.toString().replaceAll(',}','}')
+        android.defaultConfig.buildConfigField "String[]", "TRANSLATION_ARRAY", foundLocalesString
+    }
 }
 preBuild.dependsOn buildTranslationArray
