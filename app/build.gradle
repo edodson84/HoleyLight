@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     defaultConfig {
         applicationId "eu.chainfire.holeylight"
         minSdkVersion 28
-        targetSdkVersion 30
-        versionCode 101
-        versionName "1.01"
+        targetSdkVersion 31
+        versionCode 102
+        versionName "1.02"
     }
     buildTypes {
         release {
@@ -34,11 +34,6 @@ android {
                 }
             }
         }
-    }
-    lintOptions {
-        // Upgrading to Google Play Billing 5.1.0 broke building Signed APKs
-        // Be sure to run Verification -> lintVitalRelease manually before releasing
-        checkReleaseBuilds false
     }
 }
 
