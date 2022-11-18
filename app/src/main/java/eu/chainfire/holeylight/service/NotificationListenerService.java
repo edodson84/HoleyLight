@@ -266,7 +266,12 @@ public class NotificationListenerService extends android.service.notification.No
 
         tracker = NotificationTracker.getInstance();
 
-        callState = ((TelephonyManager)getSystemService(TELEPHONY_SERVICE)).getCallState();
+        try {
+            callState = ((TelephonyManager)getSystemService(TELEPHONY_SERVICE)).getCallState();
+        } catch (SecurityException e) {
+            // we don't have READ_PHONE_STATE
+            callState = TelephonyManager.CALL_STATE_IDLE;
+        }
 
         intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_SCREEN_ON);
@@ -331,7 +336,11 @@ public class NotificationListenerService extends android.service.notification.No
         connected = true;
         tracker.clear();
         isUserPresent = Display.isOn(this, false) && !keyguardManager.isKeyguardLocked();
-        ((TelephonyManager)getSystemService(TELEPHONY_SERVICE)).listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+        try {
+            ((TelephonyManager)getSystemService(TELEPHONY_SERVICE)).listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+        } catch (SecurityException e) {
+            // we don't have READ_PHONE_STATE
+        }
         registerReceiver(broadcastReceiver, intentFilter);
         handleLEDNotifications();
         startMotionSensor();
@@ -353,7 +362,11 @@ public class NotificationListenerService extends android.service.notification.No
         getContentResolver().unregisterContentObserver(refreshLEDObserverSlow);
         stopMotionSensor();
         unregisterReceiver(broadcastReceiver);
-        ((TelephonyManager)getSystemService(TELEPHONY_SERVICE)).listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+        try {
+            ((TelephonyManager)getSystemService(TELEPHONY_SERVICE)).listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+        } catch (SecurityException e) {
+            // we don't have READ_PHONE_STATE
+        }
         Overlay overlay = Overlay.getInstance();
         if (overlay != null) overlay.hide(true);
         tracker.clear();

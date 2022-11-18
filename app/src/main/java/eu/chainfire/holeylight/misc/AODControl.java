@@ -135,7 +135,11 @@ public class AODControl {
     public static Boolean setAODEnabled(Context context, boolean enabled, HelperIntentResultReceiver async) {
         if (!Settings.getInstance(context).isAODHelperControl()) return false;
         if (isAODEnabled(context) == enabled) return true;
-        if (((TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE)).getCallState() != TelephonyManager.CALL_STATE_IDLE) return false;
+        try {
+            if (((TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE)).getCallState() != TelephonyManager.CALL_STATE_IDLE) return false;
+        } catch (SecurityException e) {
+            // we don't have READ_PHONE_STATE
+        }
         return (Boolean)sendHelperIntent(context, getIntent("SET_AOD", enabled), (context1, intent, resultCode, resultData, resultExtras) -> {
             if (resultCode == 1) {
                 Slog.d("AODControl", "SET_AOD called --> %d", enabled ? 1 : 0);
