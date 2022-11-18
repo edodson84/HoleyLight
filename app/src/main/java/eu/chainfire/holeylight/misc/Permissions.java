@@ -119,7 +119,7 @@ public class Permissions {
                     .setOnlyAlertOnce(true)
                     .setNumber(0)
                     .setSmallIcon(R.drawable.ic_notify_jh)
-                    .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), 0))
+                    .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), PendingIntent.FLAG_IMMUTABLE))
                     .build();
 
             NotificationManagerCompat.from(context).notify(NOTIFICATION_ID_PERMISSIONS, notificationTest);

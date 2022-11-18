@@ -324,7 +324,7 @@ public class AODControl {
             Intent intent = new Intent(AlarmReceiver.ACTION);
             intent.setClass(context, AlarmReceiver.class);
 
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
             alarmManager.cancel(pendingIntent);
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, when.getTime(), pendingIntent);
 

@@ -111,7 +111,7 @@ public class Overlay {
                                                 context1,
                                                 0,
                                                 intent1,
-                                                0
+                                                PendingIntent.FLAG_IMMUTABLE
                                         )
                                 );
                                 System.exit(0);
