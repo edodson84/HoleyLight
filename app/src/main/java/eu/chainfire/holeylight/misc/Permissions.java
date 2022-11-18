@@ -1,5 +1,6 @@
 package eu.chainfire.holeylight.misc;
 
+import android.Manifest;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -9,6 +10,7 @@ import android.app.PendingIntent;
 import android.companion.CompanionDeviceManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.PowerManager;
 import android.view.accessibility.AccessibilityManager;
 
@@ -16,6 +18,7 @@ import java.util.List;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import eu.chainfire.holeylight.BuildConfig;
 import eu.chainfire.holeylight.R;
 import eu.chainfire.holeylight.animation.NotificationAnimation;
@@ -30,7 +33,7 @@ import static android.content.Context.POWER_SERVICE;
 public class Permissions {
     private static final int NOTIFICATION_ID_PERMISSIONS = 2001;
 
-    public enum Needed { DEVICE_SUPPORT, DEVICE_OFFICIAL_SUPPORT, UNHIDE_NOTCH, COMPANION_DEVICE, NOTIFICATION_SERVICE, ACCESSIBILITY_SERVICE, BATTERY_OPTIMIZATION_EXEMPTION, AOD_HELPER_UPDATE, AOD_HELPER_PERMISSIONS, NONE }
+    public enum Needed { DEVICE_SUPPORT, DEVICE_OFFICIAL_SUPPORT, UNHIDE_NOTCH, COMPANION_DEVICE, READ_PHONE_STATE, NOTIFICATION_SERVICE, ACCESSIBILITY_SERVICE, BATTERY_OPTIMIZATION_EXEMPTION, AOD_HELPER_UPDATE, AOD_HELPER_PERMISSIONS, NONE }
 
     public static boolean allowAODHelperUpdateNeeded = true;
     public static boolean allowAODHelperPermissionsNeeded = true;
@@ -76,6 +79,8 @@ public class Permissions {
             return Needed.UNHIDE_NOTCH;
         } else if (((CompanionDeviceManager)context.getSystemService(COMPANION_DEVICE_SERVICE)).getAssociations().size() == 0) {
             return Needed.COMPANION_DEVICE;
+        } else if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            return Needed.READ_PHONE_STATE;
         } else if (!NotificationManagerCompat.getEnabledListenerPackages(context).contains(context.getPackageName())) {
             return Needed.NOTIFICATION_SERVICE;
         } else if (!haveAccessibilityService(context)) {

@@ -10,6 +10,7 @@
                      tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
                      tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <uses-feature android:name="android.software.companion_device_setup"/>
 

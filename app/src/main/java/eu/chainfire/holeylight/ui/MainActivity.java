@@ -18,6 +18,7 @@
 
 package eu.chainfire.holeylight.ui;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
@@ -65,6 +66,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import eu.chainfire.holeylight.BuildConfig;
 import eu.chainfire.holeylight.R;
@@ -77,6 +79,7 @@ import eu.chainfire.holeylight.misc.Slog;
 
 public class MainActivity extends BaseActivity implements Settings.OnSettingsChangedListener {
     private static final int LOGCAT_DUMP_REQUEST_CODE = 12345;
+    private static final int PERMISSION_READ_PHONE_STATE_CODE = 12346;
 
     private Handler handler = null;
     private Settings settings = null;
@@ -205,7 +208,7 @@ public class MainActivity extends BaseActivity implements Settings.OnSettingsCha
                 break;
             case COMPANION_DEVICE:
                 (currentDialog = newAlert(false)
-                        .setTitle(getString(R.string.permission_required) + " 1/4")
+                        .setTitle(getString(R.string.permission_required) + " 1/5")
                         .setMessage(Html.fromHtml(getString(R.string.permission_associate) + getString(R.string.permission_associate_2)))
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                             @SuppressLint("WrongConstant") CompanionDeviceManager companionDeviceManager = (CompanionDeviceManager)getSystemService(COMPANION_DEVICE_SERVICE);
@@ -234,9 +237,22 @@ public class MainActivity extends BaseActivity implements Settings.OnSettingsCha
                         })
                         .show()).setCanceledOnTouchOutside(false);
                 break;
+            case READ_PHONE_STATE:
+                (currentDialog = newAlert(false)
+                        .setTitle(getString(R.string.permission_required) + " 2/5")
+                        .setMessage(Html.fromHtml(getString(R.string.permission_notifications)))
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                            ActivityCompat.requestPermissions(
+                                    MainActivity.this,
+                                    new String[] { Manifest.permission.READ_PHONE_STATE },
+                                    PERMISSION_READ_PHONE_STATE_CODE
+                            );
+                        })
+                        .show()).setCanceledOnTouchOutside(false);
+                break;
             case NOTIFICATION_SERVICE:
                 (currentDialog = newAlert(false)
-                        .setTitle(getString(R.string.permission_required) + " 2/4")
+                        .setTitle(getString(R.string.permission_required) + " 3/5")
                         .setMessage(Html.fromHtml(getString(R.string.permission_notifications)))
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                             Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
@@ -246,7 +262,7 @@ public class MainActivity extends BaseActivity implements Settings.OnSettingsCha
                 break;
             case ACCESSIBILITY_SERVICE:
                 (currentDialog = newAlert(false)
-                        .setTitle(getString(R.string.permission_required) + " 3/4")
+                        .setTitle(getString(R.string.permission_required) + " 4/5")
                         .setMessage(Html.fromHtml(getString(R.string.permission_accessibility_v2)))
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                             Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
@@ -256,7 +272,7 @@ public class MainActivity extends BaseActivity implements Settings.OnSettingsCha
                 break;
             case BATTERY_OPTIMIZATION_EXEMPTION:
                 (currentDialog = newAlert(false)
-                        .setTitle(getString(R.string.permission_required) + " 4/4")
+                        .setTitle(getString(R.string.permission_required) + " 5/5")
                         .setMessage(Html.fromHtml(getString(R.string.permission_battery)))
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                             checkPermissionsOnResume = true;
@@ -502,6 +518,12 @@ public class MainActivity extends BaseActivity implements Settings.OnSettingsCha
         } else {
             checkPermissions();
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        checkPermissions();
     }
 
     @Override
