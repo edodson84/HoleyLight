@@ -38,9 +38,6 @@ import static java.lang.Math.min;
  */
 
 public class AreaFinderSamsung extends AreaFinder {
-    // We switched to requesting unimportant nodes for Android 13, so filter them out on older
-    private static boolean a13 = Build.VERSION.SDK_INT >= 33;
-
     private String previousNodeClass = null;
     private boolean seenXViewPager = false;
     private boolean haveSeenContainer = false; // if seen, accept no substitute
@@ -59,7 +56,7 @@ public class AreaFinderSamsung extends AreaFinder {
         }
     }
 
-    private void inspectClockNode(AccessibilityNodeInfo node, int level, Rect outerBounds) {
+    private void inspectClockNode(AccessibilityNodeInfo node, int level, Rect outerBounds, boolean forceChildren) {
         for (int i = 0; i < node.getChildCount(); i++) {
             AccessibilityNodeInfo child = node.getChild(i);
             String childId = child.getViewIdResourceName();
@@ -89,10 +86,10 @@ public class AreaFinderSamsung extends AreaFinder {
                 } else {
                     logNode(level, child, childBounds);
                 }
-            } else if (childId != null && childId.equals("com.samsung.android.app.aodservice:id/common_clock_widget_container")) {
+            } else if (forceChildren || (childId != null && childId.equals("com.samsung.android.app.aodservice:id/common_clock_widget_container"))) {
                 Rect childBounds = new Rect();
                 logNode(level, child, childBounds);
-                inspectClockNode(child, level + 1, outerBounds);
+                inspectClockNode(child, level + 1, outerBounds, true);
             } else if (Settings.DEBUG) {
                 Rect childBounds = new Rect();
                 child.getBoundsInScreen(childBounds);
@@ -110,9 +107,11 @@ public class AreaFinderSamsung extends AreaFinder {
         if (
                 (node == null) ||
                 (node.getClassName() == null) ||
-                (!a13 && !node.isImportantForAccessibility()) ||
                 (!Settings.DEBUG && (
                         (!node.getClassName().equals("android.widget.FrameLayout")) &&
+                        (!node.getClassName().equals("android.widget.GridLayout")) &&
+                        (!node.getClassName().equals("android.widget.LinearLayout")) &&
+                        (!node.getClassName().equals("android.widget.RelativeLayout")) &&
                         (!node.getClassName().equals("com.android.internal.widget.ViewPager")) &&
                         (!"com.samsung.android.app.aodservice:id/common_battery_text".equals(node.getViewIdResourceName()))
                 ))
@@ -133,27 +132,39 @@ public class AreaFinderSamsung extends AreaFinder {
         if ("com.samsung.android.app.aodservice:id/common_battery_text".equals(node.getViewIdResourceName())) {
             overlayBottom = bounds.top - 1;
             Slog.d(TAG, "|||||||||||||||||||||||||||||||||||||||||||||||||||");
-        } else if (node.getClassName().equals("com.android.internal.widget.ViewPager") || (
-                a11 &&
-                node.getClassName().equals("android.widget.FrameLayout") && (
-                        (
-                                outerBounds.left == -1 && (
+        } else if (
+                (
+                        !(
+                                bounds.left == 0 &&
+                                bounds.top == 0
+                        ) &&
+                        node.getViewIdResourceName() != null &&
+                        !"com.android.systemui:id/lock_star_punch_hole_vi_animation_view".equals(node.getViewIdResourceName()) &&
+                        !"com.android.systemui:id/lock_icon_view".equals(node.getViewIdResourceName())
+                ) && (
+                        node.getClassName().equals("com.android.internal.widget.ViewPager") || (
+                                a11 &&
+                                node.getClassName().equals("android.widget.FrameLayout") && (
                                         (
-                                                previousNodeClass != null &&
-                                                previousNodeClass.equals("android.widget.ImageView")
+                                                outerBounds.left == -1 && (
+                                                        (
+                                                                previousNodeClass != null &&
+                                                                previousNodeClass.equals("android.widget.ImageView")
+                                                        ) || (
+                                                                seenXViewPager &&
+                                                                level == 2
+                                                        ) || (
+                                                                node.getViewIdResourceName() != null &&
+                                                                node.getViewIdResourceName().equals("com.samsung.android.app.aodservice:id/common_clock_widget_container")
+                                                        )
+                                                )
                                         ) || (
-                                                seenXViewPager &&
-                                                level == 2
-                                        ) || (
-                                                node.getViewIdResourceName() != null &&
-                                                node.getViewIdResourceName().equals("com.samsung.android.app.aodservice:id/common_clock_widget_container")
+                                                outerBounds.left >= 0
                                         )
                                 )
-                        ) || (
-                                outerBounds.left >= 0
                         )
                 )
-        )) {
+        ) {
             if (outerBounds.left == -1 && !seenXViewPager && haveSeenContainer && isTapToShow && !(node.getViewIdResourceName() != null && node.getViewIdResourceName().equals("com.samsung.android.app.aodservice:id/common_clock_widget_container"))) {
                 // skip
             } else {
@@ -164,9 +175,15 @@ public class AreaFinderSamsung extends AreaFinder {
                 if ((bounds.top >= 0) && (bounds.bottom >= 0) && ((outerBounds.bottom == -1) || (bounds.bottom > outerBounds.bottom))) outerBounds.bottom = bounds.bottom;
                 Slog.d(TAG, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 
-                inspectClockNode(node, level + 1, outerBounds);
+                inspectClockNode(node, level + 1, outerBounds, node.getViewIdResourceName().equals("com.samsung.android.app.aodservice:id/common_clock_widget_container"));
             }
-        } else if (node.getClassName().equals("android.widget.FrameLayout") || Settings.DEBUG)  {
+        } else if (
+            node.getClassName().equals("android.widget.FrameLayout") ||
+            node.getClassName().equals("android.widget.GridLayout") ||
+            node.getClassName().equals("android.widget.LinearLayout") ||
+            node.getClassName().equals("android.widget.RelativeLayout") ||
+            Settings.DEBUG
+        ) {
             for (int i = 0; i < node.getChildCount(); i++) {
                 inspectNode(node.getChild(i), outerBounds, level + 1, a11, isTapToShow);
             }

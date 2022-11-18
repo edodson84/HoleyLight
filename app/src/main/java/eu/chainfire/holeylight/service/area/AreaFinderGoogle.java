@@ -20,7 +20,6 @@ package eu.chainfire.holeylight.service.area;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Build;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
@@ -29,18 +28,17 @@ import eu.chainfire.holeylight.misc.Settings;
 import eu.chainfire.holeylight.misc.Slog;
 
 public class AreaFinderGoogle extends AreaFinder {
-    // we switched to requesting unimportant nodes for Android 13, so filter them out on older
-    private static boolean a13 = Build.VERSION.SDK_INT >= 33;
-
     private Rect clockArea = null;
 
     private void inspectNode(AccessibilityNodeInfo node, Rect outerBounds, int level) {
         if (
                 (node == null) ||
                 (node.getClassName() == null) ||
-                (!a13 && !node.isImportantForAccessibility()) ||
                 (!Settings.DEBUG && (
                         (!node.getClassName().equals("android.widget.FrameLayout")) &&
+                        (!node.getClassName().equals("android.widget.GridLayout")) &&
+                        (!node.getClassName().equals("android.widget.LinearLayout")) &&
+                        (!node.getClassName().equals("android.widget.RelativeLayout")) &&
                         (!node.getClassName().equals("com.android.internal.widget.ViewPager"))
                 ))
         ) {
@@ -61,24 +59,54 @@ public class AreaFinderGoogle extends AreaFinder {
             Slog.d(TAG, "Node " + l + node.getClassName().toString() + " " + bounds.toString() + " " + node.getViewIdResourceName());
         }
 
-        if (level == 2 && (node.getViewIdResourceName() == null || !node.getViewIdResourceName().startsWith("com.android.systemui:id/keyguard_"))) {
-            if (node.getViewIdResourceName() != null && node.getViewIdResourceName().equals("com.android.systemui:id/default_clock_view")) {
-                // named text view with clock
-                if (bounds.left >= 0 && bounds.top >= 0 && bounds.width() > 0 && bounds.height() > 0) {
-                    clockArea = new Rect(bounds);
-                }
-            } else if (clockArea != null && node.getClassName() != null && node.getClassName().equals("android.widget.TextView")) {
-                // unnamed text views below clock with date and weather
-                if (bounds.top == clockArea.bottom) {
-                    clockArea.bottom = bounds.bottom;
-                }
-            }
+        if (
+                !(
+                        bounds.left == 0 &&
+                        bounds.top == 0
+                ) &&
+                (
+                        level == 2 || (
+                                node.getViewIdResourceName() != null &&
+                                node.getViewIdResourceName().equals("com.android.systemui:id/clock_notification_icon_container")
+                        )
+                ) &&
+                (
+                        node.getViewIdResourceName() == null ||
+                        (
+                                !node.getViewIdResourceName().startsWith("com.android.systemui:id/keyguard_") ||
+                                node.getViewIdResourceName().equals("com.android.systemui:id/keyguard_status_view")
+                        )
+                )
+        ) {
             if ((bounds.left >= 0) && (bounds.right >= 0) && ((outerBounds.left == -1) || (bounds.left < outerBounds.left))) outerBounds.left = bounds.left;
             if ((bounds.top >= 0) && (bounds.bottom >= 0) && ((outerBounds.top == -1) || (bounds.top < outerBounds.top))) outerBounds.top = bounds.top;
             if ((bounds.left >= 0) && (bounds.right >= 0) && ((outerBounds.right == -1) || (bounds.right > outerBounds.right))) outerBounds.right = bounds.right;
             if ((bounds.top >= 0) && (bounds.bottom >= 0) && ((outerBounds.bottom == -1) || (bounds.bottom > outerBounds.bottom))) outerBounds.bottom = bounds.bottom;
             Slog.d(TAG, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-        } else if (node.getClassName().equals("android.widget.FrameLayout") || Settings.DEBUG)  {
+        }
+
+        if (node.getViewIdResourceName() != null && node.getViewIdResourceName().equals("com.android.systemui:id/default_clock_view")) {
+            // named text view with clock
+            if (bounds.left >= 0 && bounds.top >= 0 && bounds.width() > 0 && bounds.height() > 0) {
+                clockArea = new Rect(bounds);
+                Slog.d(TAG, "+++++++++++++++++++++++++++++++++++++++++++++++++++");
+            }
+// This doesn't highlight the overlay area so something is still very wrong, but it works on my Pixel2XL ?  TODO FIXME
+//        } else if (clockArea != null && node.getClassName() != null && node.getClassName().equals("android.widget.TextView")) {
+//            // unnamed text views below clock with date and weather
+//            if (bounds.top == clockArea.bottom) {
+//                clockArea.bottom = bounds.bottom;
+//                Slog.d(TAG, "+++++++++++++++++++++++++++++++++++++++++++++++++++");
+//            }
+        }
+
+        if (
+            node.getClassName().equals("android.widget.FrameLayout") ||
+            node.getClassName().equals("android.widget.GridLayout") ||
+            node.getClassName().equals("android.widget.LinearLayout") ||
+            node.getClassName().equals("android.widget.RelativeLayout") ||
+            Settings.DEBUG
+        ) {
             for (int i = 0; i < node.getChildCount(); i++) {
                 inspectNode(node.getChild(i), outerBounds, level + 1);
             }
