@@ -8,7 +8,7 @@
     <string translatable="false" name="app_website_url">https://forum.xda-developers.com/galaxy-s10/themes/app-holey-light-t3917675</string>
 
     <string name="permission_required">Permessi necessari</string>
-    <string name="permission_battery"><![CDATA[Nella prossima schermata per favore consenti ad <b>Holey Light</b> di fermare l\'uso del\l'ottimizzazione della batteria. Ciò è necessario per continuare a far funzionare l\'animazione della notifica.]]></string>
+    <string name="permission_battery"><![CDATA[Nella prossima schermata per favore consenti ad <b>Holey Light</b> di fermare l\'uso del l\'ottimizzazione della batteria. Ciò è necessario per continuare a far funzionare l\'animazione della notifica.]]></string>
     <string name="permission_associate"><![CDATA[Nella prossima schermata per favore collega <b>Holey Light</b> con un dispositivo <b>qualsiasi</b>. Ciò è necessario per essere in grado accedere ai colori delle notifiche. Non importa quale dispositivo scegliate.<br><br>Per favore <b>attiva il Wi-Fi ed il Bluetooth</b> prima di continuare: potrai nuovamente disattivarli in seguito.<br><br>Se non appare alcuna finestra popup, assicurati che <b>Ricerca dispositivi vicini</b> sia attivo e che lo sia altrettanto l\'associazione con un dispositivo Bluetooth.]]></string>
     <string name="permission_notifications"><![CDATA[Nella prossima schermata per favore consenti a <b>Holey Light</b> l\'accesso alle notifiche. Ciò è necessario per essere in grado di rilevare le notifiche.]]></string>
 <!-- obsolete --><string translatable="false" name="permission_accessibility"><![CDATA[In the next screen, please go to <b>Installed services</b>, and enable <b>Holey Light</b>. This is required to show the notification animation. If this doesn\'t work right, try rebooting.]]></string>
@@ -153,7 +153,7 @@
 
     <string name="notice_dialog_title">Avviso</string>
     <string name="notice_aod_required_message"><![CDATA[La configurazione attuale esige che venga attivato <b>Always On Display</b>.<br><br>Per favore vai in <b>Impostazioni -> Schermata di blocco -> Always On Display</b> ed impostalo su <b>Mostra sempre</b> (oppure <b>Tocca per mostrare</b> se lo preferite).<br><br>Per favore assicurati anche che il relativo <b>Orientamento schermo</b> sia impostato su <b>Verticale</b>.<br><br>Puoi anche programmare degli orari con AOD e la sua luminosità.]]></string>
-    <string name="notice_aod_with_image_required_message"><![CDATA[La configurazione attuale esige che venga selezionata un\'immagine per <b>Always On Display</b>.<br><br>Per favore vai in <b>Temi (poi in quelli di AOD)</b>, <b>Scarica</b> un qualsiasi tema (gratis), ed <b>impostalo</b> come <b>Solo immagine</b>.<br><br>Se lo imposti come <b>Orologio ed immagine</b>, l'orologio potrebbe diventare visibile.]]></string>
+    <string name="notice_aod_with_image_required_message"><![CDATA[La configurazione attuale esige che venga selezionata un\'immagine per <b>Always On Display</b>.<br><br>Per favore vai in <b>Temi (poi in quelli di AOD)</b>, <b>Scarica</b> un qualsiasi tema (gratis), ed <b>impostalo</b> come <b>Solo immagine</b>.<br><br>Se lo imposti come <b>Orologio ed immagine</b>, l\'orologio potrebbe diventare visibile.]]></string>
     <string name="open_android_settings">Apri le Impostazioni Android</string>
     <string name="open_theme_store">Apri Galaxy Themes</string>
 
