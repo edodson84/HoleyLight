@@ -194,6 +194,7 @@ public class MainActivity extends BaseActivity implements Settings.OnSettingsCha
                                 );
                             })
                             .show()).setCanceledOnTouchOutside(false);
+                    break;
                 }
                 break;
             case DEVICE_SUPPORT:
