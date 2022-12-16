@@ -56,6 +56,7 @@ dependencies {
     implementation 'com.android.billingclient:billing:5.1.0'
     implementation 'com.airbnb.android:lottie:5.2.0'
     implementation 'com.github.duanhong169:colorpicker:1.1.6'
+    implementation 'com.github.duanhong169:checkerboarddrawable:1.0.2'
     implementation 'com.google.android.material:material:1.8.0-beta01'
 }
 
@@ -66,7 +67,7 @@ task buildTranslationArray {
         fileTree("src/main/res").visit { FileVisitDetails details ->
             if(details.file.path.endsWith("strings.xml")){
                 def languageCode = details.file.parent.tokenize('/').last().tokenize('\\').last().replaceAll('values-','').replaceAll('-r','-')
-                languageCode = (languageCode == "values") ? "en" : languageCode;
+                languageCode = (languageCode == "values") ? "en" : languageCode
                 foundLocales.append("\"").append(languageCode).append("\"").append(",")
             }
         }
